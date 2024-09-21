@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "regex/wregex.h"
+#include "../regex/wregex.h"
 
 #define match(p, s)   _match(p, s, __FILE__, __LINE__)
 #define regex( s,p ) match(p, s)
@@ -30,7 +30,7 @@ static char* swapInStr( char, int );
 
 
 int main( int argc, char** argv )	{
-	
+
 	subm_g = (wregmatch_t*)malloc( sizeof(wregmatch_t) );
 	r_g    = (wregex_t*)   malloc( sizeof(wregex_t) );
 	
@@ -267,7 +267,7 @@ static char* swapOutPattern( char swapChar, int swapLength )	{
 		s[j++] = '0' + swapLength;
 		s[j++] = '}';
 	}
-	
+
 	s[j] = '\0';
 
 	return s;			
@@ -306,25 +306,27 @@ static char* getstring( char* in ){
 }
 
 static void fillVars( char* swapPattern, char* swapOut, int* swapout_length, char* swapIn, int* swapin_length )	{
-	
+
+	// pattern: " [2]\n[3]"
+
 	char* _ = swapPattern;
 	char currChar = *_;
-	
+
 	int f = 0;
 	int L2 = 0;
 
 	loop:
-	
+
 	if( currChar == '\\' )	{
-		
+
 		f = 1;
 		currChar = *(++_);
 	}
-	
+
 	if( f = 1 )	{
-		
+
 		switch( currChar )	{
-			
+
 			case 't':
 				currChar = '\t';
 				break;
@@ -334,38 +336,38 @@ static void fillVars( char* swapPattern, char* swapOut, int* swapout_length, cha
 			case 'n':
 				currChar = '\n';
 				break;
-				
+
 			default:
 				;
 				break;
+
 		}
 	}
-	
+
 	f = 0;
-	
+
 	if( L2==1 )
 		goto ret;
-		
+
 	*swapOut = currChar;
-	
+
 	currChar = *(++_);
-	
+
 	if( currChar=='[' )
-		++_, *swapout_length=(*_)-'0', ++_;
+		++_, *swapout_length=(*_)-'0', _+=2, currChar = *_;
 	else
 		*swapout_length = 1;
-	
+
 	L2 = 1;
 
 	goto loop;
-	
+
 	ret:
-	
-	
+
 	*swapIn = currChar;
-	
+
 	++_;
-	
+
 	if( *_=='[' )
 		++_, *swapin_length=(*_)-'0', _+=2;
 	else
@@ -374,7 +376,7 @@ static void fillVars( char* swapPattern, char* swapOut, int* swapout_length, cha
 	// basic sanity check
 	if( *_ != '\0' )
 		printf( "Unexpected EOS byte at line number %s in file %s. Expected NULL char, found %c instead.\n", __LINE__, __FILE__, *_ );
-	
+
 	return;
 }
 
